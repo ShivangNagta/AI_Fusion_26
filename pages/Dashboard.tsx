@@ -77,7 +77,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
         </HUDCard>
 
         {/* Widget 2: Academic Cockpit */}
-        <HUDCard title="Academic Cockpit" accent="secondary" className="h-64 flex flex-col">
+        {/* <HUDCard title="Academic Cockpit" accent="secondary" className="h-64 flex flex-col">
            <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-bold flex items-center gap-2" style={{ color: 'var(--color-pink)' }}>
               <Clock size={18} /> NEXT CLASS
@@ -98,7 +98,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
               <div className="text-xs" style={{ color: 'var(--color-text-muted)' }}>Timetable loading...</div>
             )}
           </div>
-        </HUDCard>
+        </HUDCard> */}
 
         {/* Widget 3: Alerts */}
         <HUDCard title="Campus Alerts" accent="tertiary" className="h-64">
@@ -120,7 +120,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
         </HUDCard>
 
          {/* Wide Widget: Quick Nav Stats (Teaser for Nav Page) */}
-        <HUDCard className="md:col-span-2 h-48 flex items-center relative overflow-hidden">
+        {/* <HUDCard className="md:col-span-2 h-48 flex items-center relative overflow-hidden">
             <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-gradient-to-l from-amber-900/20 to-transparent pointer-events-none" />
             <div className="relative z-10 w-full">
                  <h3 className="text-lg font-bold mb-2 font-['Orbitron']" style={{ color: 'var(--color-primary)' }}>CAMPUS TRAFFIC STATUS</h3>
@@ -140,7 +140,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
                  </div>
                  <p className="text-[10px] mt-4 text-center" style={{ color: 'var(--color-text-muted)' }}>Data aggregated from WiFi density sensors.</p>
             </div>
-        </HUDCard>
+        </HUDCard> */}
 
       </div>
     </div>
