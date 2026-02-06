@@ -1,4 +1,4 @@
-const API_BASE = (import.meta as any).env?.VITE_API_URL || '/api';
+const API_BASE = (import.meta as any).env?.VITE_API_URL || 'https://ai-fusion-26.onrender.com/api';
 
 export const getToken = () => localStorage.getItem('nexus_token');
 

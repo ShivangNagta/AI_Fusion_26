@@ -10,7 +10,8 @@ export default defineConfig(({ mode }) => {
         proxy: {
           '/api': {
             target: 'https://ai-fusion-26.onrender.com',
-            changeOrigin: true
+            changeOrigin: true,
+            secure: true
           }
         }
       },

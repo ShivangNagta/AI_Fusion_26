@@ -49,7 +49,8 @@ export const DailyPulse: React.FC<DailyPulseProps> = ({ user }) => {
 
   useEffect(() => {
     const token = getToken();
-    const stream = new EventSource(`/api/stream/alerts?token=${token || ''}`);
+    const apiBase = (import.meta as any).env?.VITE_API_URL || 'https://ai-fusion-26.onrender.com/api';
+    const stream = new EventSource(`${apiBase}/stream/alerts?token=${token || ''}`);
     stream.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);

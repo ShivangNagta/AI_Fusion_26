@@ -1,6 +1,8 @@
 # IIT Ropar Navigation System
 
-**Hosted at:** [https://ai-fusion-26-8hjf.onrender.com](https://ai-fusion-26-8hjf.onrender.com)
+**Live Demo:** [https://ai-fusion-26-8hjf.onrender.com](https://ai-fusion-26-8hjf.onrender.com)
+
+**Backend API:** [https://ai-fusion-26.onrender.com](https://ai-fusion-26.onrender.com)
 
 A comprehensive campus super-app for IIT Ropar students, featuring AI-powered navigation, mess menu management, mail summarization, and more.
 
