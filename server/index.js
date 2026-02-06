@@ -26,7 +26,7 @@ console.log('GEMINI_API_KEY loaded:', GEMINI_API_KEY ? 'Yes (length: ' + GEMINI_
 
 const DB_PATH = path.join(__dirname, 'db', 'nexus.sqlite');
 
-app.use(cors({ origin: true }));
+app.use(cors());
 app.use(express.json({ limit: '1mb' }));
 
 const db = await open({ filename: DB_PATH, driver: sqlite3.Database });

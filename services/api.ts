@@ -23,11 +23,20 @@ const request = async (path: string, options: RequestInit = {}) => {
     headers
   });
 
+  const text = await response.text();
+  
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: 'Request failed' }));
-    throw new Error(error.error || 'Request failed');
+    let errorMessage = 'Request failed';
+    try {
+      const errorData = text ? JSON.parse(text) : {};
+      errorMessage = errorData.error || errorMessage;
+    } catch {
+      errorMessage = text || errorMessage;
+    }
+    throw new Error(errorMessage);
   }
-  return response.json();
+  
+  return text ? JSON.parse(text) : {};
 };
 
 export const api = {
