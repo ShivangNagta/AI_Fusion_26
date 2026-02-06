@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => {
         host: '0.0.0.0',
         proxy: {
           '/api': {
-            target: 'http://localhost:4000',
+            target: 'https://ai-fusion-26.onrender.com',
             changeOrigin: true
           }
         }

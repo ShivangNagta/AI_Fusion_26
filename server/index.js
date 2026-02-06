@@ -191,32 +191,41 @@ const seedIfEmpty = async () => {
 
   const nearbyCount = await db.get('SELECT COUNT(*) as count FROM nearby_places');
   if (nearbyCount.count === 0) {
+    // Real IIT Ropar nearby places and campus locations
     await db.run(
-      'INSERT INTO nearby_places (name, vibe_tags, distance_km, rating, price_level, open_now, description) VALUES\n' +
-      ' (?, ?, ?, ?, ?, ?, ?),\n' +
-      ' (?, ?, ?, ?, ?, ?, ?),\n' +
-      ' (?, ?, ?, ?, ?, ?, ?)',
-      'Riverwalk Cafe',
-      'study-friendly,quiet,coffee',
-      2.4,
-      4.6,
-      2,
-      1,
-      'Calm riverside cafe with strong Wi-Fi.',
-      'Ropar Heritage Park',
-      'outdoors,walk,date-spot',
-      3.1,
-      4.3,
-      1,
-      1,
-      'Green space with trails and sunset views.',
-      'Night Bites',
-      'budget,food-late-night',
-      1.8,
-      4.2,
-      1,
-      1,
-      'Late-night snack joint with student discounts.'
+      'INSERT INTO nearby_places (name, vibe_tags, distance_km, rating, price_level, open_now, description, category, coordinates) VALUES ' +
+      '(?, ?, ?, ?, ?, ?, ?, ?, ?), ' +
+      '(?, ?, ?, ?, ?, ?, ?, ?, ?), ' +
+      '(?, ?, ?, ?, ?, ?, ?, ?, ?), ' +
+      '(?, ?, ?, ?, ?, ?, ?, ?, ?), ' +
+      '(?, ?, ?, ?, ?, ?, ?, ?, ?), ' +
+      '(?, ?, ?, ?, ?, ?, ?, ?, ?), ' +
+      '(?, ?, ?, ?, ?, ?, ?, ?, ?), ' +
+      '(?, ?, ?, ?, ?, ?, ?, ?, ?), ' +
+      '(?, ?, ?, ?, ?, ?, ?, ?, ?), ' +
+      '(?, ?, ?, ?, ?, ?, ?, ?, ?), ' +
+      '(?, ?, ?, ?, ?, ?, ?, ?, ?), ' +
+      '(?, ?, ?, ?, ?, ?, ?, ?, ?), ' +
+      '(?, ?, ?, ?, ?, ?, ?, ?, ?), ' +
+      '(?, ?, ?, ?, ?, ?, ?, ?, ?), ' +
+      '(?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      // Campus locations
+      'Main Academic Block', 'academic,study,lectures', 0, 5.0, 0, 1, 'Central academic building with lecture halls LH1-LH4, faculty offices, and seminar rooms.', 'campus', '30.9686,76.4731',
+      'Library & Learning Center', 'study-friendly,quiet,books', 0.1, 4.9, 0, 1, 'Modern library with extensive book collection, reading halls, and 24/7 study rooms.', 'campus', '30.9690,76.4735',
+      'Central Mess', 'food,mess,budget', 0, 4.2, 1, 1, 'Main dining facility serving breakfast, lunch, and dinner. Veg and non-veg options available.', 'campus', '30.9682,76.4728',
+      'Sports Complex', 'sports,outdoors,gym', 0.2, 4.5, 0, 1, 'Gymnasium, basketball courts, volleyball, badminton, and cricket ground.', 'campus', '30.9675,76.4720',
+      'Student Activity Center (SAC)', 'events,clubs,hangout', 0.1, 4.4, 0, 1, 'Hub for student clubs, cultural events, and recreational activities.', 'campus', '30.9688,76.4738',
+      'Hostel Area', 'residential,quiet', 0, 4.3, 0, 1, 'Boys and Girls hostels with common rooms, laundry, and night canteen.', 'campus', '30.9678,76.4725',
+      'Admin Block', 'admin,offices', 0.1, 4.0, 0, 1, 'Administrative offices, Dean offices, and student services.', 'campus', '30.9692,76.4732',
+      // Nearby Rupnagar locations
+      'Rupnagar Railway Station', 'transport,travel', 3.5, 4.0, 1, 1, 'Main railway station connecting to Chandigarh, Delhi, and other cities.', 'transport', '30.9662,76.5262',
+      'Shivalik Mall Rupnagar', 'shopping,food,entertainment', 4.2, 4.1, 2, 1, 'Shopping complex with food court, cinema, and retail stores.', 'shopping', '30.9655,76.5318',
+      'Gurudwara Shri Bhatha Sahib', 'spiritual,peaceful,heritage', 8.0, 4.8, 0, 1, 'Historic Sikh shrine associated with Guru Nanak Dev Ji.', 'spiritual', '30.9789,76.5125',
+      'Anandpur Sahib', 'spiritual,heritage,tourism', 25.0, 4.9, 1, 1, 'Takht Sri Kesgarh Sahib - one of five Sikh temporal seats. Must visit!', 'spiritual', '31.2395,76.5022',
+      'Chandigarh', 'city,shopping,entertainment', 45.0, 4.7, 3, 1, 'Planned city with Sukhna Lake, Rock Garden, Sector 17 market, and Elante Mall.', 'city', '30.7333,76.7794',
+      'Nangal Dam', 'nature,picnic,photography', 15.0, 4.4, 1, 1, 'Scenic dam on Sutlej River. Great for weekend picnics and photography.', 'nature', '31.3845,76.3752',
+      'Virasat-e-Khalsa Museum', 'museum,heritage,culture', 25.0, 4.8, 2, 1, 'Stunning museum showcasing 500 years of Sikh history and Punjab culture.', 'culture', '31.2385,76.5058',
+      'Cafe Coffee Day Rupnagar', 'cafe,study-friendly,coffee', 4.0, 4.0, 2, 1, 'Popular cafe chain. Good for study sessions and meetups with friends.', 'food', '30.9648,76.5289'
     );
   }
 
@@ -376,7 +385,9 @@ const initDb = async () => {
       'rating REAL NOT NULL,\n' +
       'price_level INTEGER NOT NULL,\n' +
       'open_now INTEGER NOT NULL,\n' +
-      'description TEXT NOT NULL\n' +
+      'description TEXT NOT NULL,\n' +
+      'category TEXT DEFAULT "nearby",\n' +
+      'coordinates TEXT\n' +
     ');\n' +
     'CREATE TABLE IF NOT EXISTS timetable (\n' +
       'id INTEGER PRIMARY KEY AUTOINCREMENT,\n' +
@@ -777,10 +788,23 @@ app.post('/api/navigation/advice', authMiddleware, async (req, res) => {
     return res.json({ advice: 'Navigation AI offline. Proceed with caution.' });
   }
 
+  const iitrContext = `IIT Ropar Campus Layout:
+- Main Gate leads to Central Road
+- Academic Block (Lecture Halls LH1-LH4) is central
+- Library is behind Academic Block
+- Central Mess is near Hostel Area
+- Sports Complex is towards west side
+- SAC (Student Activity Center) is near Admin Block
+- Boys Hostels: BH1-BH4 are clustered together
+- Girls Hostels: GH1-GH2 are separate area
+- Medical Center is near Main Gate
+- Parking area near Main Gate
+- Night Canteen is near BH3`;
+
   try {
     const response = await aiClient.models.generateContent({
       model: 'gemini-3-flash-preview',
-      contents: `You are a futuristic navigation AI for a university campus.\nUser is at: ${currentLocation}\nHeading to: ${destination}\nContext: ${context || 'no extra context'}\nGive a short navigation tip under 30 words.`
+      contents: `You are a navigation AI for IIT Ropar campus in Punjab, India.\n${iitrContext}\n\nUser is at: ${currentLocation}\nHeading to: ${destination}\nContext: ${context || 'no extra context'}\nGive a short, helpful navigation tip under 40 words with specific landmarks.`
     });
     res.json({ advice: response.text || 'Rerouting calculation failed.' });
   } catch (err) {

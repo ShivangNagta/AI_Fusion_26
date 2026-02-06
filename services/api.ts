@@ -36,7 +36,11 @@ export const api = {
   me: () => request('/auth/me'),
 
   messMenu: (date?: string) => request(`/mess/menu${date ? `?date=${date}` : ''}`),
+  createMessMenu: (payload: { date: string; meal: string; item: string; calories?: number; tags?: string; rating?: number }) => 
+    request('/mess/menu', { method: 'POST', body: JSON.stringify(payload) }),
   announcements: () => request('/announcements'),
+  createAnnouncement: (payload: { title: string; body: string; category: string; priority: string; event_at?: string }) =>
+    request('/announcements', { method: 'POST', body: JSON.stringify(payload) }),
   weather: () => request('/weather'),
 
   summarizeMail: (text: string, subject?: string) => request('/mail/summarize', { method: 'POST', body: JSON.stringify({ text, subject }) }),

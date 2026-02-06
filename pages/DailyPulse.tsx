@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { HUDButton, HUDCard } from '../components/RetroUI';
 import { api, getToken } from '../services/api';
 import { UserProfile } from '../types';
-import { CloudSun, Utensils, Bell, Filter, CalendarClock, Megaphone } from 'lucide-react';
+import { CloudSun, Utensils, Bell, Filter, CalendarClock, Megaphone, Plus, X } from 'lucide-react';
 
 interface DailyPulseProps {
   user: UserProfile;
@@ -10,7 +10,7 @@ interface DailyPulseProps {
 
 type TabType = 'mess' | 'weather' | 'announcements' | 'events';
 
-export const DailyPulse: React.FC<DailyPulseProps> = () => {
+export const DailyPulse: React.FC<DailyPulseProps> = ({ user }) => {
   const [activeTab, setActiveTab] = useState<TabType>('mess');
   const [menu, setMenu] = useState<any[]>([]);
   const [announcements, setAnnouncements] = useState<any[]>([]);
@@ -19,22 +19,32 @@ export const DailyPulse: React.FC<DailyPulseProps> = () => {
   const [tagFilter, setTagFilter] = useState('');
   const [loading, setLoading] = useState(true);
 
+  // Admin form states
+  const [showMenuForm, setShowMenuForm] = useState(false);
+  const [showAnnouncementForm, setShowAnnouncementForm] = useState(false);
+  const [menuForm, setMenuForm] = useState({ date: new Date().toISOString().slice(0, 10), meal: 'breakfast', item: '', calories: '', tags: '' });
+  const [announcementForm, setAnnouncementForm] = useState({ title: '', body: '', category: 'general', priority: 'medium', event_at: '' });
+  const [submitting, setSubmitting] = useState(false);
+
+  const isAdmin = user?.role === 'admin';
+
+  const loadData = async () => {
+    try {
+      const [menuData, annData, weatherData] = await Promise.all([
+        api.messMenu(),
+        api.announcements(),
+        api.weather()
+      ]);
+      setMenu(menuData.items || []);
+      setAnnouncements(annData.items || []);
+      setWeather(weatherData);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const load = async () => {
-      try {
-        const [menuData, annData, weatherData] = await Promise.all([
-          api.messMenu(),
-          api.announcements(),
-          api.weather()
-        ]);
-        setMenu(menuData.items || []);
-        setAnnouncements(annData.items || []);
-        setWeather(weatherData);
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
+    loadData();
   }, []);
 
   useEffect(() => {
@@ -64,6 +74,50 @@ export const DailyPulse: React.FC<DailyPulseProps> = () => {
     { id: 'announcements' as TabType, label: 'Announcements', icon: <Megaphone size={16} /> },
     { id: 'events' as TabType, label: 'Events', icon: <CalendarClock size={16} /> },
   ];
+
+  const handleAddMenuItem = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!menuForm.item.trim()) return;
+    setSubmitting(true);
+    try {
+      await api.createMessMenu({
+        date: menuForm.date,
+        meal: menuForm.meal,
+        item: menuForm.item,
+        calories: menuForm.calories ? parseInt(menuForm.calories) : undefined,
+        tags: menuForm.tags || undefined
+      });
+      setMenuForm({ date: new Date().toISOString().slice(0, 10), meal: 'breakfast', item: '', calories: '', tags: '' });
+      setShowMenuForm(false);
+      await loadData();
+    } catch (err) {
+      console.error('Failed to add menu item:', err);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleAddAnnouncement = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!announcementForm.title.trim() || !announcementForm.body.trim()) return;
+    setSubmitting(true);
+    try {
+      await api.createAnnouncement({
+        title: announcementForm.title,
+        body: announcementForm.body,
+        category: announcementForm.category,
+        priority: announcementForm.priority,
+        event_at: announcementForm.event_at || undefined
+      });
+      setAnnouncementForm({ title: '', body: '', category: 'general', priority: 'medium', event_at: '' });
+      setShowAnnouncementForm(false);
+      await loadData();
+    } catch (err) {
+      console.error('Failed to add announcement:', err);
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -106,17 +160,106 @@ export const DailyPulse: React.FC<DailyPulseProps> = () => {
             <div className="flex items-center gap-2 font-bold" style={{ color: 'var(--color-primary)' }}>
               <Utensils size={16} /> TODAY'S LINEUP
             </div>
-            <div className="flex items-center gap-2 text-xs text-stone-500">
-              <Filter size={12} />
-              <input
-                value={tagFilter}
-                onChange={(e) => setTagFilter(e.target.value)}
-                placeholder="Filter (veg, gluten-free)"
-                className="bg-black/50 border border-stone-700 px-2 py-1 font-mono"
-                style={{ color: 'var(--color-primary-light)' }}
-              />
+            <div className="flex items-center gap-4">
+              {isAdmin && (
+                <button
+                  onClick={() => setShowMenuForm(!showMenuForm)}
+                  className="flex items-center gap-1 px-3 py-1 text-xs font-mono uppercase border transition-all"
+                  style={{
+                    borderColor: 'var(--color-green)',
+                    color: 'var(--color-green)',
+                    backgroundColor: showMenuForm ? 'rgba(129, 178, 154, 0.2)' : 'transparent'
+                  }}
+                >
+                  {showMenuForm ? <X size={12} /> : <Plus size={12} />}
+                  {showMenuForm ? 'Cancel' : 'Add Item'}
+                </button>
+              )}
+              <div className="flex items-center gap-2 text-xs text-stone-500">
+                <Filter size={12} />
+                <input
+                  value={tagFilter}
+                  onChange={(e) => setTagFilter(e.target.value)}
+                  placeholder="Filter (veg, gluten-free)"
+                  className="bg-black/50 border border-stone-700 px-2 py-1 font-mono"
+                  style={{ color: 'var(--color-primary-light)' }}
+                />
+              </div>
             </div>
           </div>
+
+          {/* Admin Add Menu Form */}
+          {isAdmin && showMenuForm && (
+            <form onSubmit={handleAddMenuItem} className="mb-6 p-4 border border-stone-700 bg-black/40">
+              <div className="text-xs uppercase mb-3 font-mono" style={{ color: 'var(--color-green)' }}>+ ADD MENU ITEM</div>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div>
+                  <label className="text-[10px] uppercase text-stone-500 block mb-1">Date</label>
+                  <input
+                    type="date"
+                    value={menuForm.date}
+                    onChange={(e) => setMenuForm({ ...menuForm, date: e.target.value })}
+                    className="w-full bg-black/50 border border-stone-700 px-2 py-2 font-mono text-sm"
+                    style={{ color: 'var(--color-primary-light)' }}
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase text-stone-500 block mb-1">Meal</label>
+                  <select
+                    value={menuForm.meal}
+                    onChange={(e) => setMenuForm({ ...menuForm, meal: e.target.value })}
+                    className="w-full bg-black/50 border border-stone-700 px-2 py-2 font-mono text-sm"
+                    style={{ color: 'var(--color-primary-light)' }}
+                  >
+                    <option value="breakfast">Breakfast</option>
+                    <option value="lunch">Lunch</option>
+                    <option value="dinner">Dinner</option>
+                    <option value="snacks">Snacks</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase text-stone-500 block mb-1">Item Name *</label>
+                  <input
+                    type="text"
+                    value={menuForm.item}
+                    onChange={(e) => setMenuForm({ ...menuForm, item: e.target.value })}
+                    placeholder="e.g., Paneer Butter Masala"
+                    className="w-full bg-black/50 border border-stone-700 px-2 py-2 font-mono text-sm"
+                    style={{ color: 'var(--color-primary-light)' }}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase text-stone-500 block mb-1">Calories</label>
+                  <input
+                    type="number"
+                    value={menuForm.calories}
+                    onChange={(e) => setMenuForm({ ...menuForm, calories: e.target.value })}
+                    placeholder="e.g., 450"
+                    className="w-full bg-black/50 border border-stone-700 px-2 py-2 font-mono text-sm"
+                    style={{ color: 'var(--color-primary-light)' }}
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase text-stone-500 block mb-1">Tags (comma-separated)</label>
+                  <input
+                    type="text"
+                    value={menuForm.tags}
+                    onChange={(e) => setMenuForm({ ...menuForm, tags: e.target.value })}
+                    placeholder="e.g., veg, spicy"
+                    className="w-full bg-black/50 border border-stone-700 px-2 py-2 font-mono text-sm"
+                    style={{ color: 'var(--color-primary-light)' }}
+                  />
+                </div>
+              </div>
+              <div className="mt-4 flex justify-end">
+                <HUDButton type="submit" disabled={submitting}>
+                  {submitting ? 'Adding...' : 'Add Menu Item'}
+                </HUDButton>
+              </div>
+            </form>
+          )}
+
           {loading ? (
             <div className="text-xs text-stone-500 font-mono">Loading menu...</div>
           ) : filteredMenu.length === 0 ? (
@@ -194,9 +337,101 @@ export const DailyPulse: React.FC<DailyPulseProps> = () => {
       {/* Announcements Tab */}
       {activeTab === 'announcements' && (
         <HUDCard title="CAMPUS ANNOUNCEMENTS" accent="pink">
-          <div className="flex items-center gap-2 mb-4" style={{ color: 'var(--color-pink)' }}>
-            <Megaphone size={16} /> <span className="font-bold text-sm">OFFICIAL NOTICES</span>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2" style={{ color: 'var(--color-pink)' }}>
+              <Megaphone size={16} /> <span className="font-bold text-sm">OFFICIAL NOTICES</span>
+            </div>
+            {isAdmin && (
+              <button
+                onClick={() => setShowAnnouncementForm(!showAnnouncementForm)}
+                className="flex items-center gap-1 px-3 py-1 text-xs font-mono uppercase border transition-all"
+                style={{
+                  borderColor: 'var(--color-green)',
+                  color: 'var(--color-green)',
+                  backgroundColor: showAnnouncementForm ? 'rgba(129, 178, 154, 0.2)' : 'transparent'
+                }}
+              >
+                {showAnnouncementForm ? <X size={12} /> : <Plus size={12} />}
+                {showAnnouncementForm ? 'Cancel' : 'Add Announcement'}
+              </button>
+            )}
           </div>
+
+          {/* Admin Add Announcement Form */}
+          {isAdmin && showAnnouncementForm && (
+            <form onSubmit={handleAddAnnouncement} className="mb-6 p-4 border border-stone-700 bg-black/40">
+              <div className="text-xs uppercase mb-3 font-mono" style={{ color: 'var(--color-green)' }}>+ ADD ANNOUNCEMENT</div>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-[10px] uppercase text-stone-500 block mb-1">Title *</label>
+                  <input
+                    type="text"
+                    value={announcementForm.title}
+                    onChange={(e) => setAnnouncementForm({ ...announcementForm, title: e.target.value })}
+                    placeholder="e.g., Exam Schedule Released"
+                    className="w-full bg-black/50 border border-stone-700 px-2 py-2 font-mono text-sm"
+                    style={{ color: 'var(--color-primary-light)' }}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase text-stone-500 block mb-1">Category</label>
+                  <select
+                    value={announcementForm.category}
+                    onChange={(e) => setAnnouncementForm({ ...announcementForm, category: e.target.value })}
+                    className="w-full bg-black/50 border border-stone-700 px-2 py-2 font-mono text-sm"
+                    style={{ color: 'var(--color-primary-light)' }}
+                  >
+                    <option value="general">General</option>
+                    <option value="academic">Academic</option>
+                    <option value="event">Event</option>
+                    <option value="maintenance">Maintenance</option>
+                    <option value="urgent">Urgent</option>
+                  </select>
+                </div>
+                <div className="md:col-span-2">
+                  <label className="text-[10px] uppercase text-stone-500 block mb-1">Body *</label>
+                  <textarea
+                    value={announcementForm.body}
+                    onChange={(e) => setAnnouncementForm({ ...announcementForm, body: e.target.value })}
+                    placeholder="Detailed description of the announcement..."
+                    className="w-full bg-black/50 border border-stone-700 px-2 py-2 font-mono text-sm min-h-[80px]"
+                    style={{ color: 'var(--color-primary-light)' }}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase text-stone-500 block mb-1">Priority</label>
+                  <select
+                    value={announcementForm.priority}
+                    onChange={(e) => setAnnouncementForm({ ...announcementForm, priority: e.target.value })}
+                    className="w-full bg-black/50 border border-stone-700 px-2 py-2 font-mono text-sm"
+                    style={{ color: 'var(--color-primary-light)' }}
+                  >
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase text-stone-500 block mb-1">Event Date (optional)</label>
+                  <input
+                    type="datetime-local"
+                    value={announcementForm.event_at}
+                    onChange={(e) => setAnnouncementForm({ ...announcementForm, event_at: e.target.value })}
+                    className="w-full bg-black/50 border border-stone-700 px-2 py-2 font-mono text-sm"
+                    style={{ color: 'var(--color-primary-light)' }}
+                  />
+                </div>
+              </div>
+              <div className="mt-4 flex justify-end">
+                <HUDButton type="submit" disabled={submitting}>
+                  {submitting ? 'Adding...' : 'Add Announcement'}
+                </HUDButton>
+              </div>
+            </form>
+          )}
+
           {announcements.length === 0 ? (
             <div className="text-xs text-stone-500">No announcements yet.</div>
           ) : (
