@@ -1,0 +1,8 @@
+{
+  "name": "Project Nexus",
+  "description": "A retro-futuristic campus super-app integrating navigation, AI utilities, and student services into a gamified HUD interface.",
+  "requestFramePermissions": [
+    "geolocation",
+    "microphone"
+  ]
+}

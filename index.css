@@ -1,0 +1,311 @@
+:root {
+    /* Base Colors - "Obsidian" Palette */
+    --color-bg: #050505;
+    /* Almost True Black */
+    --color-bg-card: #121212;
+    /* Dark Material Surface */
+    --color-bg-input: #000000;
+    /* Pure Black for depth */
+    --color-fg: #e0e0e0;
+    /* Soft White (High readability) */
+
+    /* Primary/Accent - "Sunset" (No Yellow) */
+    --color-primary: #e07a5f;
+    /* Terra Cotta / Burnt Orange */
+    --color-primary-dark: #9c432f;
+    --color-primary-light: #f2ccb8;
+
+    /* Secondary Accents - Deep & Rich */
+    --color-pink: #d16d88;
+    /* Muted Raspberry */
+    --color-orange: #d66853;
+    /* Rust */
+    --color-green: #5c8065;
+    /* Forest Green (Low brightness) */
+    --color-red: #b93b3b;
+    /* Deep Crimson */
+    --color-yellow: #c28863;
+    /* Replaced Yellow with "Bronze" */
+
+    /* UI Elements */
+    --color-border: #2a2a2a;
+    /* Subtle dark grey borders */
+    --color-border-subtle: #1f1f1f;
+    --color-ring: var(--color-primary);
+
+    /* Text - Silver & Pewter tones */
+    --color-text: #cfcfcf;
+    /* Light Silver */
+    --color-text-muted: #808080;
+    /* Neutral Grey */
+    --color-text-accent: var(--color-primary);
+
+    /* Shadows - Very faint, mostly relying on borders in black themes */
+    --glow-primary: 0 0 20px rgba(224, 122, 95, 0.15);
+    --glow-pink: 0 0 20px rgba(209, 109, 136, 0.15);
+    --glow-orange: 0 0 20px rgba(214, 104, 83, 0.15);
+
+    /* Fonts */
+    --font-sans: 'Inter', system-ui, sans-serif;
+    --font-mono: 'Share Tech Mono', 'Consolas', monospace;
+    --font-display: 'Orbitron', sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-mono);
+    overflow-x: hidden;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-fg);
+    text-shadow: none;
+    /* Clean, sharp text */
+}
+
+/* Themed Inputs - "Sink into the void" style */
+input,
+textarea,
+select {
+    background-color: var(--color-bg-input);
+    border: 1px solid var(--color-border);
+    color: #ffffff;
+    font-family: var(--font-mono);
+    padding: 0.6rem;
+    border-radius: 4px;
+    transition: border-color 0.2s;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    /* A very subtle glow */
+    box-shadow: 0 0 10px rgba(224, 122, 95, 0.2);
+}
+
+/* Themed Buttons */
+.btn-primary {
+    background-color: transparent;
+    border: 1px solid var(--color-primary);
+    color: var(--color-primary);
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    padding: 0.6rem 1.2rem;
+    transition: all 0.2s;
+    cursor: pointer;
+    border-radius: 2px;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background-color: var(--color-primary);
+    color: var(--color-bg);
+    /* Black text on orange button */
+    box-shadow: 0 0 15px rgba(224, 122, 95, 0.4);
+}
+
+.btn-primary:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    filter: grayscale(100%);
+}
+
+/* Card Styles - Dark Surfaces */
+.card {
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    /* No blur needed for solid black themes usually, keeps it crisp */
+    padding: 1.5rem;
+    border-radius: 6px;
+}
+
+.card-primary {
+    border-color: var(--color-primary);
+}
+
+.card-pink {
+    border-color: var(--color-pink);
+}
+
+.card-orange {
+    border-color: var(--color-orange);
+}
+
+/* Status Indicators */
+.status-open {
+    color: var(--color-green);
+}
+
+.status-closed {
+    color: var(--color-red);
+}
+
+.status-pending {
+    color: var(--color-yellow);
+}
+
+/* Bronze/Tan color */
+
+/* Utility Classes */
+.text-primary {
+    color: var(--color-primary);
+}
+
+.text-pink {
+    color: var(--color-pink);
+}
+
+.text-orange {
+    color: var(--color-orange);
+}
+
+.text-muted {
+    color: var(--color-text-muted);
+}
+
+.text-accent {
+    color: var(--color-text-accent);
+}
+
+.bg-primary {
+    background-color: var(--color-primary);
+    color: #000;
+}
+
+.bg-card {
+    background-color: var(--color-bg-card);
+}
+
+.border-primary {
+    border-color: var(--color-primary);
+}
+
+.border-pink {
+    border-color: var(--color-pink);
+}
+
+.border-orange {
+    border-color: var(--color-orange);
+}
+
+.border-subtle {
+    border-color: var(--color-border-subtle);
+}
+
+/* CRT Scanline Effect - Minimal Texture */
+.scanlines {
+    position: fixed;
+    inset: 0;
+    /* Very faint horizontal lines to break up the solid black slightly */
+    background: repeating-linear-gradient(to bottom,
+            transparent,
+            transparent 2px,
+            rgba(255, 255, 255, 0.02) 2px,
+            rgba(255, 255, 255, 0.02) 4px);
+    pointer-events: none;
+    z-index: 9999;
+}
+
+/* Custom scrollbar - Dark */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--color-bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-primary);
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* Animations */
+@keyframes blink {
+    50% {
+        opacity: 0.3;
+    }
+}
+
+.animate-blink {
+    animation: blink 3s infinite;
+}
+
+/* Under Construction Banner */
+.under-construction {
+    background: repeating-linear-gradient(45deg,
+            #1a1a1a,
+            #1a1a1a 10px,
+            #252525 10px,
+            #252525 20px);
+    color: var(--color-primary);
+    padding: 0.5rem 1rem;
+    font-weight: bold;
+    text-align: center;
+    font-family: var(--font-display);
+    border-bottom: 1px solid var(--color-border);
+}
+
+/* Responsive Grid */
+.grid-responsive {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .grid-responsive {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .grid-responsive {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Mobile-first containers */
+.container-responsive {
+    width: 100%;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+@media (min-width: 768px) {
+    .container-responsive {
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
+}
