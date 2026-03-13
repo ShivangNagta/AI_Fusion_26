@@ -1,4 +1,4 @@
-# IIT Ropar Navigation System
+# College General Purpose App (Vibe Coded)
 
 **Live Demo:** [https://ai-fusion-26-8hjf.onrender.com](https://ai-fusion-26-8hjf.onrender.com)
 
